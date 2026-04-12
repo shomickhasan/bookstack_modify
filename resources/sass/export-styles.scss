@@ -18,6 +18,10 @@ body {
   display: block;
 }
 
+body.export-format-html {
+  padding-bottom: 56px;
+}
+
 table {
   border-spacing: 0;
   border-collapse: collapse;
@@ -25,6 +29,73 @@ table {
 
 .page-content {
   overflow: hidden;
+}
+
+body.export-format-html .page-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.export-book-layout {
+  display: block;
+}
+
+body.export-format-html .export-book-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+body.export-format-html .export-book-menu {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+}
+
+body.export-format-html .export-book-menu .contents {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body.export-format-html .export-book-menu .contents a {
+  text-decoration: none;
+}
+
+body.export-format-html .export-book-body {
+  min-width: 0;
+}
+
+.export-footer {
+  display: none;
+}
+
+body.export-format-html .export-footer {
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 14px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #4f5d75;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #d9dee7;
+  backdrop-filter: blur(8px);
+}
+
+body.export-format-html .export-footer a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+body.export-format-html .export-footer a:hover {
+  text-decoration: underline;
 }
 
 // Prevent code block overflow on export
@@ -44,6 +115,20 @@ pre code {
 @media screen {
   .page-break {
     border-top: 1px solid #DDD;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  body.export-format-html .export-book-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.export-format-html .export-book-menu {
+    position: static;
+  }
+
+  body.export-format-html .page-content {
+    padding: 18px;
   }
 }
 

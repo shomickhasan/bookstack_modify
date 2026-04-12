@@ -16,6 +16,9 @@
 <div class="page-content" dir="auto">
     @yield('content')
 </div>
+<div class="export-footer">
+    Built with By <a href="https://3-devs.com/" target="_blank" rel="noopener noreferrer">3DEVs IT Ltd.</a>
+</div>
 @include('layouts.parts.export-body-end')
 </body>
 </html>
