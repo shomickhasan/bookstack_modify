@@ -36,6 +36,7 @@ return [
     'no_pages_recently_updated' => 'No pages have been recently updated',
     'export' => 'Export',
     'export_html' => 'Contained Web File',
+    'export_html_pages' => 'Paged Web HTML ZIP',
     'export_pdf' => 'PDF File',
     'export_text' => 'Plain Text File',
     'export_md' => 'Markdown File',

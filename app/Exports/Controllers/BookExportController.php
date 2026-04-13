@@ -4,6 +4,7 @@ namespace BookStack\Exports\Controllers;
 
 use BookStack\Entities\Queries\BookQueries;
 use BookStack\Exceptions\NotFoundException;
+use BookStack\Exports\BookHtmlPageExportBuilder;
 use BookStack\Exports\ExportFormatter;
 use BookStack\Exports\ZipExports\ZipExportBuilder;
 use BookStack\Http\Controller;
@@ -44,6 +45,19 @@ class BookExportController extends Controller
         $htmlContent = $this->exportFormatter->bookToContainedHtml($book);
 
         return $this->download()->directly($htmlContent, $bookSlug . '.html');
+    }
+
+    /**
+     * Export a book as a multi-file HTML ZIP.
+     *
+     * @throws Throwable
+     */
+    public function htmlPages(string $bookSlug, BookHtmlPageExportBuilder $builder)
+    {
+        $book = $this->queries->findVisibleBySlugOrFail($bookSlug);
+        $zip = $builder->build($book);
+
+        return $this->download()->streamedFileDirectly($zip, $bookSlug . '-html-pages.zip', true);
     }
 
     /**

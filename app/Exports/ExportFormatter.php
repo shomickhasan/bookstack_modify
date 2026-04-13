@@ -202,7 +202,7 @@ class ExportFormatter
      *
      * @throws Exception
      */
-    protected function containHtml(string $htmlContent): string
+    public function containHtml(string $htmlContent, bool $makeRelativeLinksAbsolute = true): string
     {
         $imageTagsOutput = [];
         preg_match_all("/\<img.*?src\=(\'|\")(.*?)(\'|\").*?\>/i", $htmlContent, $imageTagsOutput);
@@ -221,18 +221,20 @@ class ExportFormatter
             }
         }
 
-        $linksOutput = [];
-        preg_match_all("/\<a.*href\=(\'|\")(.*?)(\'|\").*?\>/i", $htmlContent, $linksOutput);
+        if ($makeRelativeLinksAbsolute) {
+            $linksOutput = [];
+            preg_match_all("/\<a.*href\=(\'|\")(.*?)(\'|\").*?\>/i", $htmlContent, $linksOutput);
 
-        // Update relative links to be absolute, with instance url
-        if (count($linksOutput[0]) > 0) {
-            foreach ($linksOutput[0] as $index => $linkMatch) {
-                $oldLinkString = $linkMatch;
-                $srcString = $linksOutput[2][$index];
-                if (!str_starts_with(trim($srcString), 'http')) {
-                    $newSrcString = url($srcString);
-                    $newLinkString = str_replace($srcString, $newSrcString, $oldLinkString);
-                    $htmlContent = str_replace($oldLinkString, $newLinkString, $htmlContent);
+            // Update relative links to be absolute, with instance url
+            if (count($linksOutput[0]) > 0) {
+                foreach ($linksOutput[0] as $index => $linkMatch) {
+                    $oldLinkString = $linkMatch;
+                    $srcString = $linksOutput[2][$index];
+                    if (!str_starts_with(trim($srcString), 'http')) {
+                        $newSrcString = url($srcString);
+                        $newLinkString = str_replace($srcString, $newSrcString, $oldLinkString);
+                        $htmlContent = str_replace($oldLinkString, $newLinkString, $htmlContent);
+                    }
                 }
             }
         }

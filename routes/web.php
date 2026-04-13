@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/books/{bookSlug}/sort', [SortingControllers\BookSortController::class, 'update']);
     Route::get('/books/{slug}/references', [ReferenceController::class, 'book']);
     Route::get('/books/{bookSlug}/export/html', [ExportControllers\BookExportController::class, 'html']);
+    Route::get('/books/{bookSlug}/export/html-pages', [ExportControllers\BookExportController::class, 'htmlPages']);
     Route::get('/books/{bookSlug}/export/pdf', [ExportControllers\BookExportController::class, 'pdf']);
     Route::get('/books/{bookSlug}/export/markdown', [ExportControllers\BookExportController::class, 'markdown']);
     Route::get('/books/{bookSlug}/export/zip', [ExportControllers\BookExportController::class, 'zip']);

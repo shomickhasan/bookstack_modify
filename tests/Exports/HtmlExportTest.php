@@ -7,6 +7,7 @@ use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Page;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use ZipArchive;
 
 class HtmlExportTest extends TestCase
 {
@@ -46,6 +47,53 @@ class HtmlExportTest extends TestCase
         $resp = $this->asEditor()->get($book->getUrl('/export/html'));
         $resp->assertSee($book->description_html, false);
         $resp->assertSee($chapter->description_html, false);
+    }
+
+    public function test_book_multi_html_export_creates_zip_with_navigation_between_files()
+    {
+        $book = $this->entities->bookHasChaptersAndPages();
+        $chapter = $book->chapters()->first();
+        $page = $chapter->pages()->first();
+        Storage::disk('local')->makeDirectory('uploads/images/gallery');
+        Storage::disk('local')->put('uploads/images/gallery/multi-export-test.svg', '<svg></svg>');
+        $page->html = '<p>Image test <img src="http://localhost/uploads/images/gallery/multi-export-test.svg"></p>';
+        $page->save();
+
+        $resp = $this->asEditor()->get($book->getUrl('/export/html-pages'));
+        $resp->assertStatus(200);
+        $resp->assertHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\'' . $book->slug . '-html-pages.zip');
+
+        $zipFile = tempnam(sys_get_temp_dir(), 'bstest-multi-html-');
+        file_put_contents($zipFile, $resp->streamedContent());
+
+        $extractDir = tempnam(sys_get_temp_dir(), 'bstest-multi-html-dir-');
+        if (file_exists($extractDir)) {
+            unlink($extractDir);
+        }
+        mkdir($extractDir);
+
+        $zip = new ZipArchive();
+        $zip->open($zipFile, ZipArchive::RDONLY);
+        $zip->extractTo($extractDir);
+        $zip->close();
+
+        $manifest = json_decode(file_get_contents($extractDir . DIRECTORY_SEPARATOR . 'manifest.json'), true);
+        $pageFile = $manifest['files']['page-' . $page->id];
+        $chapterFile = $manifest['files']['chapter-' . $chapter->id];
+
+        $this->assertFileExists($extractDir . DIRECTORY_SEPARATOR . 'index.html');
+        $this->assertFileExists($extractDir . DIRECTORY_SEPARATOR . $chapterFile);
+        $this->assertFileExists($extractDir . DIRECTORY_SEPARATOR . $pageFile);
+
+        $pageHtml = file_get_contents($extractDir . DIRECTORY_SEPARATOR . $pageFile);
+        $this->assertStringContainsString($page->name, $pageHtml);
+        $this->assertStringContainsString('href="' . $chapterFile . '"', $pageHtml);
+        $this->assertStringNotContainsString('data:image', $pageHtml);
+        $this->assertMatchesRegularExpression('/src="assets\\/[^"]+\\.svg"/', $pageHtml);
+        $this->assertNotEmpty(glob($extractDir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . '*.svg'));
+
+        Storage::disk('local')->delete('uploads/images/gallery/multi-export-test.svg');
+        unlink($zipFile);
     }
 
     public function test_chapter_html_export()
