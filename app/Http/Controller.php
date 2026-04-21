@@ -7,6 +7,7 @@ use BookStack\App\Model;
 use BookStack\Exceptions\NotifyException;
 use BookStack\Facades\Activity;
 use BookStack\Permissions\Permission;
+use BookStack\Util\OutOfMemoryHandler;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
@@ -123,6 +124,34 @@ abstract class Controller extends BaseController
     protected function download(): DownloadResponseFactory
     {
         return new DownloadResponseFactory(request());
+    }
+
+    /**
+     * Raise available resources for PDF exports and return an out-of-memory
+     * handler that provides a cleaner user-facing response if limits are hit.
+     */
+    protected function prepareForPdfExport(string $redirectLocation = '/'): OutOfMemoryHandler
+    {
+        $memoryLimit = config('exports.pdf_memory_limit');
+        if (is_string($memoryLimit) && $memoryLimit !== '') {
+            @ini_set('memory_limit', $memoryLimit);
+        }
+
+        $maxExecutionTime = intval(config('exports.pdf_max_execution_time', 0));
+        @ini_set('max_execution_time', (string) $maxExecutionTime);
+        if (function_exists('set_time_limit')) {
+            @set_time_limit($maxExecutionTime);
+        }
+
+        return new OutOfMemoryHandler(function () use ($redirectLocation) {
+            $message = trans('errors.export_pdf_memory_limit');
+
+            if (request()->expectsJson()) {
+                return $this->jsonError($message, 500);
+            }
+
+            throw new NotifyException($message, $redirectLocation, 500);
+        });
     }
 
     /**

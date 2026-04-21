@@ -28,10 +28,16 @@ class ChapterExportController extends Controller
      */
     public function pdf(string $bookSlug, string $chapterSlug)
     {
-        $chapter = $this->queries->findVisibleBySlugsOrFail($bookSlug, $chapterSlug);
-        $pdfContent = $this->exportFormatter->chapterToPdf($chapter);
+        $outOfMemoryHandler = $this->prepareForPdfExport('/books/' . $bookSlug . '/chapter/' . $chapterSlug);
 
-        return $this->download()->directly($pdfContent, $chapterSlug . '.pdf');
+        try {
+            $chapter = $this->queries->findVisibleBySlugsOrFail($bookSlug, $chapterSlug);
+            $pdfContent = $this->exportFormatter->chapterToPdf($chapter);
+
+            return $this->download()->directly($pdfContent, $chapterSlug . '.pdf');
+        } finally {
+            $outOfMemoryHandler->forget();
+        }
     }
 
     /**

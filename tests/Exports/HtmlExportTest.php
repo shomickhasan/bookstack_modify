@@ -96,6 +96,40 @@ class HtmlExportTest extends TestCase
         unlink($zipFile);
     }
 
+    public function test_book_multi_html_export_shows_cover_metadata_when_provided()
+    {
+        $book = $this->entities->bookHasChaptersAndPages();
+        $book->prepared_by = 'Product Support Team';
+        $book->document_version = 'v2.4';
+        $book->save();
+
+        $resp = $this->asEditor()->get($book->getUrl('/export/html-pages'));
+        $resp->assertOk();
+
+        $zipFile = tempnam(sys_get_temp_dir(), 'bstest-cover-meta-');
+        file_put_contents($zipFile, $resp->streamedContent());
+
+        $extractDir = tempnam(sys_get_temp_dir(), 'bstest-cover-meta-dir-');
+        if (file_exists($extractDir)) {
+            unlink($extractDir);
+        }
+        mkdir($extractDir);
+
+        $zip = new ZipArchive();
+        $zip->open($zipFile, ZipArchive::RDONLY);
+        $zip->extractTo($extractDir);
+        $zip->close();
+
+        $indexHtml = file_get_contents($extractDir . DIRECTORY_SEPARATOR . 'index.html');
+        $this->assertStringContainsString($book->name, $indexHtml);
+        $this->assertStringContainsString('Prepared By', $indexHtml);
+        $this->assertStringContainsString('Product Support Team', $indexHtml);
+        $this->assertStringContainsString('Document Version', $indexHtml);
+        $this->assertStringContainsString('v2.4', $indexHtml);
+
+        unlink($zipFile);
+    }
+
     public function test_chapter_html_export()
     {
         $chapter = $this->entities->chapter();

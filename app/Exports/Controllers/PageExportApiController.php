@@ -25,10 +25,16 @@ class PageExportApiController extends ApiController
      */
     public function exportPdf(int $id)
     {
-        $page = $this->queries->findVisibleByIdOrFail($id);
-        $pdfContent = $this->exportFormatter->pageToPdf($page);
+        $outOfMemoryHandler = $this->prepareForPdfExport();
 
-        return $this->download()->directly($pdfContent, $page->slug . '.pdf');
+        try {
+            $page = $this->queries->findVisibleByIdOrFail($id);
+            $pdfContent = $this->exportFormatter->pageToPdf($page);
+
+            return $this->download()->directly($pdfContent, $page->slug . '.pdf');
+        } finally {
+            $outOfMemoryHandler->forget();
+        }
     }
 
     /**

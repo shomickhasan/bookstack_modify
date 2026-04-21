@@ -30,6 +30,38 @@ class BookTest extends TestCase
         $resp->assertSee($book->descriptionInfo()->getPlain());
     }
 
+    public function test_create_and_update_store_document_metadata()
+    {
+        $createResp = $this->asEditor()->post('/books', [
+            'name' => 'Metadata Book',
+            'description_html' => '<p>Book description</p>',
+            'document_version' => '1.0',
+            'prepared_by' => 'Documentation Team',
+        ]);
+
+        $book = Book::query()->where('name', '=', 'Metadata Book')->firstOrFail();
+        $createResp->assertRedirect($book->getUrl());
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'document_version' => '1.0',
+            'prepared_by' => 'Documentation Team',
+        ]);
+
+        $updateResp = $this->put($book->getUrl(), [
+            'name' => 'Metadata Book',
+            'description_html' => '<p>Book description</p>',
+            'document_version' => '2.0',
+            'prepared_by' => 'Product Operations',
+        ]);
+
+        $updateResp->assertRedirect($book->getUrl());
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'document_version' => '2.0',
+            'prepared_by' => 'Product Operations',
+        ]);
+    }
+
     public function test_create_uses_different_slugs_when_name_reused()
     {
         $book = Book::factory()->make([

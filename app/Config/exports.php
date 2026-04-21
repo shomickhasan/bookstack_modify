@@ -33,6 +33,11 @@ return [
     // before the process times out and is stopped.
     'pdf_command_timeout' => env('EXPORT_PDF_COMMAND_TIMEOUT', 15),
 
+    // Temporary PHP resource limits applied during PDF export requests.
+    // Useful for large book exports which need additional headroom.
+    'pdf_memory_limit' => env('EXPORT_PDF_MEMORY_LIMIT', '1024M'),
+    'pdf_max_execution_time' => env('EXPORT_PDF_MAX_EXECUTION_TIME', 0),
+
     // 2024-04: Snappy/WKHTMLtoPDF now considered deprecated in regard to BookStack support.
     'snappy' => [
         'pdf_binary' => env('WKHTMLTOPDF', false),

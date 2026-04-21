@@ -20,6 +20,11 @@ body {
 
 body.export-format-html {
   padding-bottom: 56px;
+  --export-topbar-height: 88px;
+  --export-brand-color: #d10074;
+  --export-brand-soft: rgba(209, 0, 116, 0.08);
+  --export-brand-border: rgba(209, 0, 116, 0.18);
+  --export-3devs-color: #47c3e8;
 }
 
 table {
@@ -31,10 +36,22 @@ table {
   overflow: hidden;
 }
 
+body.export-format-html .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 body.export-format-html .page-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 0 24px 24px;
   box-sizing: border-box;
 }
 
@@ -42,30 +59,323 @@ body.export-format-html .page-content {
   display: block;
 }
 
+body.export-format-html .export-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--export-brand-border);
+  backdrop-filter: blur(14px);
+}
+
+body.export-format-html .export-topbar-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(var(--export-topbar-height) - 32px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+body.export-format-html .export-topbar-brand {
+  min-width: 0;
+}
+
+body.export-format-html .export-topbar-book-link {
+  display: inline-block;
+  color: #14212e;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+body.export-format-html .export-topbar-book-link:hover {
+  text-decoration: none;
+  color: var(--export-brand-color);
+}
+
+body.export-format-html .export-topbar-current {
+  margin-top: 4px;
+  color: #5f6b7a;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.export-format-html .export-topbar-search {
+  flex: 1 1 360px;
+  min-width: min(420px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 12px;
+  align-items: center;
+}
+
+body.export-format-html .export-topbar-search-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--export-brand-border);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 1px 2px rgba(20, 33, 46, 0.04);
+  font-size: 0.95rem;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+body.export-format-html .export-topbar-search-input:focus {
+  border-color: rgba(209, 0, 116, 0.5);
+  box-shadow: 0 0 0 4px rgba(209, 0, 116, 0.12);
+  outline: none;
+}
+
+body.export-format-html .export-topbar-search-clear {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--export-brand-soft);
+  color: var(--export-brand-color);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+body.export-format-html .export-topbar-search-clear:hover {
+  background: rgba(209, 0, 116, 0.14);
+}
+
+body.export-format-html .export-topbar-search-meta {
+  grid-column: 1 / -1;
+  color: #6f7b89;
+  font-size: 0.86rem;
+  line-height: 1.3;
+}
+
 body.export-format-html .export-book-layout {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-  gap: 32px;
+  gap: 28px;
   align-items: start;
+}
+
+body.export-format-html .export-book-layout-page {
+  gap: 20px;
 }
 
 body.export-format-html .export-book-menu {
   position: sticky;
-  top: 24px;
+  top: var(--export-topbar-height);
   align-self: start;
+  margin-top: 0;
+  padding: 0;
+  border: 1px solid var(--export-brand-border);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(180deg, #fff 0%, #fff8fc 100%);
+  box-shadow: 0 18px 38px rgba(38, 51, 66, 0.08);
 }
 
-body.export-format-html .export-book-menu .contents {
+body.export-format-html .export-book-menu-scroll {
+  max-height: calc(100vh - var(--export-topbar-height));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-anchor: none;
+  margin-top: 0;
+  padding: 18px 18px 22px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(209, 0, 116, 0.35) rgba(209, 0, 116, 0.08);
+}
+
+body.export-format-html .export-book-layout-page .export-book-menu-scroll {
+  padding-top: 10px;
+}
+
+body.export-format-html .export-book-menu-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.export-format-html .export-book-menu-scroll::-webkit-scrollbar-track {
+  background: rgba(209, 0, 116, 0.08);
+  border-radius: 999px;
+}
+
+body.export-format-html .export-book-menu-scroll::-webkit-scrollbar-thumb {
+  background: rgba(209, 0, 116, 0.35);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+body.export-format-html .export-book-menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(209, 0, 116, 0.5);
+}
+
+body.export-format-html .export-book-menu-scroll .contents {
   margin-top: 0;
   margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
 }
 
-body.export-format-html .export-book-menu .contents a {
+body.export-format-html .export-book-menu-scroll .contents .contents {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  border-left: 1px solid rgba(209, 0, 116, 0.12);
+}
+
+body.export-format-html .export-book-menu-scroll .contents a {
+  display: block;
+  padding: 8px 12px;
+  margin-bottom: 2px;
   text-decoration: none;
+  color: #263342;
+  line-height: 1.45;
+  border-radius: 10px;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+body.export-format-html .export-book-menu-scroll .contents a:hover {
+  background: rgba(209, 0, 116, 0.08);
+  color: var(--export-brand-color);
+  text-decoration: none;
+}
+
+body.export-format-html .export-book-menu-scroll .contents a.active {
+  background: linear-gradient(90deg, rgba(209, 0, 116, 0.12) 0%, rgba(209, 0, 116, 0.04) 100%);
+  color: var(--export-brand-color);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--export-brand-color);
+}
+
+body.export-format-html .export-book-menu-scroll > :first-child,
+body.export-format-html .export-book-menu-scroll > :first-child > :first-child {
+  margin-top: 0 !important;
+}
+
+body.export-format-html .export-book-menu-scroll a[hidden],
+body.export-format-html .export-book-menu-scroll li[hidden] {
+  display: none !important;
 }
 
 body.export-format-html .export-book-body {
   min-width: 0;
+  font-size: 16px;
+  padding-top: 20px;
+  padding-right: 28px;
+  padding-left: 28px;
+  padding-bottom: 42px;
+}
+
+body.export-format-html .export-book-body > :first-child {
+  margin-top: 0;
+}
+
+body.export-format-html .export-book-body-page {
+  padding-top: 0;
+}
+
+body.export-format-html .export-book-body-page .chapter-hint {
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-size: clamp(1.35rem, 2vw, 1.9rem);
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+body.export-format-html .export-book-body-page #bkmrk-page-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: clamp(2.2rem, 4.2vw, 3.9rem);
+  line-height: 1.08;
+}
+
+body.export-format-html .export-book-body-page > div[dir="auto"] {
+  margin-top: 0;
+}
+
+body.export-format-html .export-book-body-page > div[dir="auto"] > :nth-child(2) {
+  margin-top: 0;
+}
+
+body.export-format-html .export-book-body > :first-child > :first-child,
+body.export-format-html .export-book-body > :first-child > :first-child > :first-child {
+  margin-top: 0;
+}
+
+body.export-format-html .export-book-body h1:first-child,
+body.export-format-html .export-book-body h2:first-child,
+body.export-format-html .export-book-body h3:first-child {
+  margin-top: 0;
+}
+
+body.export-format-html .export-hero-title {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: clamp(2.8rem, 5vw, 5.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+body.export-format-html .export-hero-copy {
+  max-width: 78ch;
+}
+
+body.export-format-html .export-cover-page {
+  display: block;
+}
+
+body.export-format-html .export-cover-kicker {
+  margin-bottom: 14px;
+  color: var(--export-brand-color);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body.export-format-html .export-cover-meta {
+  margin-bottom: 22px;
+}
+
+body.export-format-html .export-cover-meta-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 32px;
+}
+
+body.export-format-html .export-cover-meta-stacked {
+  display: grid;
+  gap: 18px;
+  margin-top: 26px;
+}
+
+body.export-format-html .export-cover-meta-label {
+  color: #7a6070;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.export-format-html .export-cover-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+body.export-format-html .export-cover-meta-value {
+  color: #1b2530;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .export-footer {
@@ -79,23 +389,84 @@ body.export-format-html .export-footer {
   right: 0;
   bottom: 0;
   z-index: 20;
-  padding: 14px 24px;
+  padding: 12px 24px;
   text-align: center;
   font-size: 13px;
   color: #4f5d75;
-  background: rgba(255, 255, 255, 0.96);
-  border-top: 1px solid #d9dee7;
+  background: rgba(255, 255, 255, 0.98);
+  border-top: 1px solid var(--export-brand-border);
   backdrop-filter: blur(8px);
 }
 
+body.export-format-html .export-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+body.export-format-html .export-footer-logos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+body.export-format-html .export-footer-logo {
+  display: block;
+  max-height: 28px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+body.export-format-html .export-footer-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+body.export-format-html .export-footer-separator {
+  width: 20px;
+  height: 1px;
+  background: var(--export-brand-border);
+}
+
 body.export-format-html .export-footer a {
-  color: inherit;
+  color: var(--export-brand-color);
   font-weight: 600;
   text-decoration: none;
 }
 
+body.export-format-html .export-footer-brac {
+  color: var(--export-brand-color);
+  font-weight: 600;
+}
+
+body.export-format-html .export-footer-3devs-link {
+  color: var(--export-3devs-color);
+}
+
 body.export-format-html .export-footer a:hover {
   text-decoration: underline;
+}
+
+body.export-format-html a {
+  color: var(--export-brand-color);
+}
+
+body.export-format-html blockquote {
+  border-left-color: var(--export-brand-color);
+}
+
+body.export-format-html .entity-list-item.no-hover .entity-list-item-body,
+body.export-format-html .export-book-menu .sticky-sidebar {
+  border-color: var(--export-brand-border);
 }
 
 // Prevent code block overflow on export
@@ -119,6 +490,19 @@ pre code {
 }
 
 @media screen and (max-width: 960px) {
+  body.export-format-html .export-topbar {
+    padding: 14px 18px;
+  }
+
+  body.export-format-html .export-topbar-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body.export-format-html .export-topbar-search {
+    min-width: 0;
+  }
+
   body.export-format-html .export-book-layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -127,8 +511,70 @@ pre code {
     position: static;
   }
 
+  body.export-format-html .export-book-menu-scroll {
+    max-height: none;
+    overflow: visible;
+  }
+
   body.export-format-html .page-content {
     padding: 18px;
+  }
+
+  body.export-format-html .export-book-body {
+    padding: 24px 20px 32px;
+  }
+
+  body.export-format-html .export-book-body-page {
+    padding-top: 0;
+  }
+
+  body.export-format-html {
+    padding-bottom: 94px;
+  }
+}
+
+@media screen and (max-width: 1280px) and (min-width: 961px) {
+  body.export-format-html .page-content {
+    padding: 0 18px 24px;
+  }
+
+  body.export-format-html .export-topbar {
+    padding: 14px 18px;
+  }
+
+  body.export-format-html .export-book-layout {
+    grid-template-columns: minmax(210px, 248px) minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  body.export-format-html .export-book-menu {
+    padding: 0;
+  }
+
+  body.export-format-html .export-book-menu-scroll {
+    padding: 16px 14px 20px;
+  }
+
+  body.export-format-html .export-book-body {
+    padding: 14px 10px 32px 10px;
+  }
+
+  body.export-format-html .export-book-body-page {
+    padding-top: 0;
+  }
+
+  body.export-format-html .export-hero-title {
+    font-size: clamp(2.5rem, 4.6vw, 4.4rem);
+  }
+
+  body.export-format-html .export-cover-meta-row {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  body.export-format-html .export-cover-meta-value {
+    font-size: 1.15rem;
   }
 }
 
@@ -137,11 +583,17 @@ ul.contents ul li {
 }
 
 .chapter-hint {
-  color: #888;
-  margin-top: 32px;
+  color: #1c2733;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  font-size: clamp(2rem, 3vw, 2.8em);
+  line-height: 1.2;
+  font-weight: 700;
 }
 .chapter-hint + h1 {
   margin-top: 0;
+  font-size: clamp(1.75rem, 2.6vw, 2.35em);
+  line-height: 1.2;
 }
 
 // PDF specific overrides

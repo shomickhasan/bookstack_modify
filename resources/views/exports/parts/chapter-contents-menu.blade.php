@@ -2,7 +2,10 @@
         <ul class="contents">
             @foreach($pages as $page)
                 <li>
-                    <a href="{{ $entityLinks['page-' . $page->id] ?? '#page-' . $page->id }}">{{ $page->name }}</a>
+                    <a href="./{{ $entityLinks['page-' . $page->id] ?? '#page-' . $page->id }}"
+                       class="{{ isset($currentEntity) && $currentEntity->isA('page') && $currentEntity->id === $page->id ? 'active' : '' }}">
+                        {{ $page->name }}
+                    </a>
                 </li>
             @endforeach
         </ul>

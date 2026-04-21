@@ -19,6 +19,7 @@ class BookHtmlPageExportBuilder
 {
     protected array $assetMap = [];
     protected array $assetContents = [];
+    protected ?array $exportBranding = null;
 
     public function __construct(
         protected ExportFormatter $exportFormatter,
@@ -86,11 +87,12 @@ class BookHtmlPageExportBuilder
             'book' => $book,
             'bookChildren' => $bookChildren,
             'entityLinks' => $entityLinks,
+            'exportBranding' => $this->getExportBrandingAssets(),
             'contentType' => 'book',
             'currentEntity' => $book,
             'currentChapter' => null,
             'format' => 'html',
-            'cspContent' => $this->cspService->getCspMetaTagValue(),
+            'cspContent' => null,
             'locale' => user()->getLocale(),
         ])->render();
 
@@ -103,11 +105,12 @@ class BookHtmlPageExportBuilder
             'book' => $book,
             'bookChildren' => $bookChildren,
             'entityLinks' => $entityLinks,
+            'exportBranding' => $this->getExportBrandingAssets(),
             'contentType' => 'chapter',
             'currentEntity' => $chapter,
             'currentChapter' => $chapter,
             'format' => 'html',
-            'cspContent' => $this->cspService->getCspMetaTagValue(),
+            'cspContent' => null,
             'locale' => user()->getLocale(),
         ])->render();
 
@@ -120,11 +123,12 @@ class BookHtmlPageExportBuilder
             'book' => $book,
             'bookChildren' => $bookChildren,
             'entityLinks' => $entityLinks,
+            'exportBranding' => $this->getExportBrandingAssets(),
             'contentType' => 'page',
             'currentEntity' => $page,
             'currentChapter' => $chapter,
             'format' => 'html',
-            'cspContent' => $this->cspService->getCspMetaTagValue(),
+            'cspContent' => null,
             'locale' => user()->getLocale(),
         ])->render();
 
@@ -183,6 +187,92 @@ class BookHtmlPageExportBuilder
         }
 
         return $doc->getHtml();
+    }
+
+    protected function getExportBrandingAssets(): array
+    {
+        if ($this->exportBranding !== null) {
+            return $this->exportBranding;
+        }
+
+        $this->exportBranding = [
+            'brac_logo' => $this->findAndRegisterBrandingAsset(['brac-logo', 'brac'], 'brac'),
+            'three_devs_logo' => $this->findAndRegisterBrandingAsset(['3devs-logo', '3devs', 'three-devs-logo', 'three-devs'], '3devs'),
+        ];
+
+        return $this->exportBranding;
+    }
+
+    protected function findAndRegisterBrandingAsset(array $searchTerms, string $fallbackName): ?string
+    {
+        $brandingDirectories = [
+            public_path('branding'),
+            public_path('export-branding'),
+            public_path('exports/branding'),
+        ];
+
+        foreach ($brandingDirectories as $directory) {
+            if (!is_dir($directory)) {
+                continue;
+            }
+
+            $files = $this->getBrandingFilesFromDirectory($directory);
+            foreach ($files as $file) {
+                $normalizedFileName = strtolower(str_replace([' ', '_'], '-', pathinfo($file, PATHINFO_FILENAME)));
+                foreach ($searchTerms as $term) {
+                    if (str_contains($normalizedFileName, $term)) {
+                        return $this->registerPublicAsset($file, $fallbackName);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function getBrandingFilesFromDirectory(string $directory): array
+    {
+        $files = [];
+        $allowedExtensions = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
+
+        foreach ($iterator as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+
+            $extension = strtolower($file->getExtension());
+            if (in_array($extension, $allowedExtensions, true)) {
+                $files[] = $file->getPathname();
+            }
+        }
+
+        return $files;
+    }
+
+    protected function registerPublicAsset(string $path, string $fallbackName): ?string
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $extension = $extension ?: 'img';
+        $fileName = preg_replace('/[^A-Za-z0-9_-]+/', '-', pathinfo($path, PATHINFO_FILENAME));
+        $fileName = trim($fileName ?: $fallbackName, '-');
+        $hash = substr(sha1($path . '|' . filemtime($path) . '|' . filesize($path)), 0, 12);
+        $assetPath = "assets/branding/{$fileName}-{$hash}.{$extension}";
+
+        if (!isset($this->assetContents[$assetPath])) {
+            $content = file_get_contents($path);
+            if ($content === false) {
+                return null;
+            }
+
+            $this->assetContents[$assetPath] = $content;
+        }
+
+        return $assetPath;
     }
 
     protected function getAssetPathForImage(string $src): ?string

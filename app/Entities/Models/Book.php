@@ -17,6 +17,8 @@ use Illuminate\Support\Collection;
  *
  * @property string                                   $description
  * @property string                                   $description_html
+ * @property ?string                                  $document_version
+ * @property ?string                                  $prepared_by
  * @property ?int                                     $image_id
  * @property ?int                                     $default_template_id
  * @property ?int                                     $sort_rule_id
@@ -34,7 +36,7 @@ class Book extends Entity implements HasDescriptionInterface, HasCoverInterface,
     public float $searchFactor = 1.2;
 
     protected $hidden = ['pivot', 'deleted_at', 'description_html', 'entity_id', 'entity_type', 'chapter_id', 'book_id', 'priority'];
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'document_version', 'prepared_by'];
 
     /**
      * Get the url for this book.

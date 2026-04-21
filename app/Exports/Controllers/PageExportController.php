@@ -30,11 +30,17 @@ class PageExportController extends Controller
      */
     public function pdf(string $bookSlug, string $pageSlug)
     {
-        $page = $this->queries->findVisibleBySlugsOrFail($bookSlug, $pageSlug);
-        $page->html = (new PageContent($page))->render();
-        $pdfContent = $this->exportFormatter->pageToPdf($page);
+        $outOfMemoryHandler = $this->prepareForPdfExport('/books/' . $bookSlug . '/page/' . $pageSlug);
 
-        return $this->download()->directly($pdfContent, $pageSlug . '.pdf');
+        try {
+            $page = $this->queries->findVisibleBySlugsOrFail($bookSlug, $pageSlug);
+            $page->html = (new PageContent($page))->render();
+            $pdfContent = $this->exportFormatter->pageToPdf($page);
+
+            return $this->download()->directly($pdfContent, $pageSlug . '.pdf');
+        } finally {
+            $outOfMemoryHandler->forget();
+        }
     }
 
     /**

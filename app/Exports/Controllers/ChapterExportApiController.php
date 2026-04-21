@@ -25,10 +25,16 @@ class ChapterExportApiController extends ApiController
      */
     public function exportPdf(int $id)
     {
-        $chapter = $this->queries->findVisibleByIdOrFail($id);
-        $pdfContent = $this->exportFormatter->chapterToPdf($chapter);
+        $outOfMemoryHandler = $this->prepareForPdfExport();
 
-        return $this->download()->directly($pdfContent, $chapter->slug . '.pdf');
+        try {
+            $chapter = $this->queries->findVisibleByIdOrFail($id);
+            $pdfContent = $this->exportFormatter->chapterToPdf($chapter);
+
+            return $this->download()->directly($pdfContent, $chapter->slug . '.pdf');
+        } finally {
+            $outOfMemoryHandler->forget();
+        }
     }
 
     /**

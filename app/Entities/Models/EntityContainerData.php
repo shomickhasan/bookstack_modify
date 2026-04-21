@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string  $entity_type
  * @property string  $description
  * @property string  $description_html
+ * @property ?string $document_version
+ * @property ?string $prepared_by
  * @property ?int    $default_template_id
  * @property ?int    $image_id
  * @property ?int    $sort_rule_id
@@ -23,6 +25,8 @@ class EntityContainerData extends Model
     public static array $fields = [
         'description',
         'description_html',
+        'document_version',
+        'prepared_by',
         'default_template_id',
         'image_id',
         'sort_rule_id',

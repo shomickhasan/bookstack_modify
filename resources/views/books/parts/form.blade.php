@@ -4,6 +4,17 @@
     @include('form.text', ['name' => 'name', 'autofocus' => true])
 </div>
 
+<div class="grid half gap-xl">
+    <div class="form-group">
+        <label for="document_version">Document Version</label>
+        @include('form.text', ['name' => 'document_version', 'model' => $model ?? $book ?? null])
+    </div>
+    <div class="form-group">
+        <label for="prepared_by">Prepared By</label>
+        @include('form.text', ['name' => 'prepared_by', 'model' => $model ?? $book ?? null])
+    </div>
+</div>
+
 <div class="form-group description-input">
     <label for="description_html">{{ trans('common.description') }}</label>
     @include('form.description-html-input')
